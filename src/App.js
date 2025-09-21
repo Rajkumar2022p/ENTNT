@@ -1,23 +1,22 @@
 
-
-
+import Navbar from "./components/common/Navbar"
+import JobCard from "./components/Jobs/JobCard";
+import JobsBoard from "./components/Jobs/JobsBoard";
 function App() {
   return (
     <div className="App">
       <header className="App-header">
       
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Hello
-        </a>
+        
+       
       </header>
+      <div>
+        <Navbar/>
+        
+    </div>
+    <div className="H">
+       <JobsBoard/>
+    </div>
     </div>
   );
 }

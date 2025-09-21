@@ -8,6 +8,8 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.3.8",
+    "dexie": "^4.2.0",
+    "miragejs": "^0.1.48",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-scripts": "5.0.1",

@@ -136,3 +136,15 @@ src/
 │
 ├─ App.js
 └─ index.js
+
+
+### 2. JobsBpard Functionality
+JobsBoard.js
+├── maintains: jobs (state)
+├── calls: createJob(newJob)
+├── calls: deleteJob(id)
+├── renders: <JobCard job={...} onDelete={deleteJob} />
+└── includes: <JobFormModal onAddJob={createJob} />
+
+### 3.
+

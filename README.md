@@ -90,7 +90,7 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 src/
 │
-├─ api/                # MSW or Mirage API mocks
+├─ api/                 # MSW or Mirage API mocks
 │   └─ index.js
 │
 ├─ db/                 # IndexedDB helpers
@@ -127,7 +127,7 @@ src/
 │   ├─ CandidatesRoutes.js
 │   └─ AssessmentsRoutes.js
 │
-├─ utils/              # Helpers
+├─ utils/                     # Helpers
 │   ├─ fakerUtils.js
 │   └─ dragDropUtils.js
 │

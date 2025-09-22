@@ -1,7 +1,14 @@
-import Dexie from "dexie";
+import Dexie from 'dexie';
 
-export const db = new Dexie("TalentFlowDB");
+export interface User {
+  id?: number;
+  role: 'job' | 'candidate';
+  email: string;
+  password: string;
+}
+
+export const db = new Dexie('TalentFlowDB');
 
 db.version(1).stores({
-  jobs: "++id, title, location, description"
+  users: '++id,email,role,password',
 });

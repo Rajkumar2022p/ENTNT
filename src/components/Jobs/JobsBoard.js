@@ -1,54 +1,34 @@
-import React, { useEffect, useState } from "react";
-import JobCard from "./JobCard";
-import JobFormModal from "./JobFormModal";
-
-// Mirage API helpers
-const fetchJobs = async () => {
-  const res = await fetch("/api/jobs");
-  const data = await res.json();
-  return data.jobs;
-};
-
-const createJob = async (job) => {
-  const res = await fetch("/api/jobs", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(job),
-  });
-  return res.json();
-};
-
-const deleteJob = async (id) => {
-  await fetch(`/api/jobs/${id}`, {
-    method: "DELETE",
-  });
-};
+// src/components/Jobs/JobsBoard.js
+import React from "react";
+import { jobs } from "../../store/seed";
+import { candidates } from "../../store/seed";
 
 const JobsBoard = () => {
-  const [jobs, setJobs] = useState([]);
-
-  useEffect(() => {
-    fetchJobs().then((data) => setJobs(data));
-  }, []);
-
-  const handleAddJob = async (job) => {
-    // Optimistic update
-    setJobs((prev) => [...prev, job]);
-    await createJob(job);
-  };
-
-  const handleDeleteJob = async (id) => {
-    // Optimistic removal
-    setJobs((prev) => prev.filter((job) => job.id !== id));
-    await deleteJob(id);
-  };
-
   return (
-    <div className="container mt-4">
+    <div style={{ padding: "2rem" }}>
       <h2>Jobs</h2>
-      <JobFormModal onAddJob={handleAddJob} />
       {jobs.map((job) => (
-        <JobCard key={job.id} job={job} onDelete={handleDeleteJob} />
+        <div
+          key={job.id}
+          style={{
+            marginBottom: "1.5rem",
+            padding: "1rem",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+          }}
+        >
+          <h3>{job.title}</h3>
+          <p>{job.description}</p>
+
+          <h4>Candidates for this job:</h4>
+          <ul>
+            {candidates
+              .filter((c) => c.jobId === job.id)
+              .map((c) => (
+                <li key={c.id}>{c.name}</li>
+              ))}
+          </ul>
+        </div>
       ))}
     </div>
   );

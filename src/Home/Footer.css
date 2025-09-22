@@ -1,0 +1,33 @@
+.footer {
+  width: 100%;
+  padding: 1.5rem 2rem;
+  background: #1a1a1a;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+}
+
+.footer h4 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.footer ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.footer li {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.footer li:hover {
+  color: #00bfff;
+  transform: translateY(-2px);
+}

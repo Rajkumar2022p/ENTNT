@@ -1,0 +1,21 @@
+
+.candidate-dashboard-container {
+  padding: 2rem;
+  background: #f7f8fa;
+  min-height: 100vh;
+}
+
+.candidate-jobs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.new-job-posting {
+  margin-top: 3rem;
+  padding: 1rem;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  text-align: center;
+}

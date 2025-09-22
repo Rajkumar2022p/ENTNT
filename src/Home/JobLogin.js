@@ -1,18 +1,23 @@
-// src/components/Home/JobLogin.js
+// src/Home/JobLogin.js
 import React, { useState } from 'react';
 
-const JobLogin = ({ onLogin }) => {
+const JobLogin = ({ onLogin, onSignup }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSignIn = (e) => {
     e.preventDefault();
-    onLogin(); // call parent handler
+    if (onLogin) onLogin(email, password);
+  };
+
+  const handleSignUp = (e) => {
+    e.preventDefault();
+    if (onSignup) onSignup(email, password);
   };
 
   return (
     <div style={loginPageStyle}>
-      <form style={formStyle} onSubmit={handleSubmit}>
+      <form style={formStyle}>
         <h2>Job / Recruiter Login</h2>
         <input
           type="email"
@@ -28,7 +33,10 @@ const JobLogin = ({ onLogin }) => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Login</button>
+        <div style={buttonGroupStyle}>
+          <button type="submit" onClick={handleSignIn}>Sign In</button>
+          <button type="button" onClick={handleSignUp}>Sign Up</button>
+        </div>
       </form>
     </div>
   );
@@ -51,6 +59,12 @@ const formStyle = {
   padding: '2rem',
   borderRadius: '12px',
   width: '300px',
+};
+
+const buttonGroupStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  gap: '1rem',
 };
 
 export default JobLogin;

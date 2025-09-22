@@ -1,0 +1,52 @@
+.navbar-background {
+  background: linear-gradient(
+    to right,
+    rgba(0, 123, 255, 0.9),
+    rgba(255, 105, 180, 0.6)
+  );
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+/* Circular Logo */
+.logo-image {
+  width: 60px;       /* smaller size */
+  height: 60px;      /* keep it square for perfect circle */
+  border-radius: 50%;  /* makes it circular */
+  object-fit: cover;   /* ensures image fits nicely */
+  border: 2px solid white; /* optional: nice border */
+}
+
+/* Vibrant search input */
+.animated-search-form {
+  transition: all 0.3s ease-in-out;
+}
+
+.vibrant-input {
+  background-color: #ffe4f0; /* pinkish pastel */
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+.vibrant-input:focus {
+  background-color: white;
+  border-color: #0d6efd;
+  box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
+}
+
+/* Matching search button */
+.vibrant-btn {
+  border: none;
+  background-color: #0d6efd;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.vibrant-btn:hover {
+  background-color: #0b5ed7;
+}

@@ -1,22 +1,26 @@
 // src/components/common/Layout.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Loader from './Loader';
+import Navbar from './Navbar'; // ✅ import Navbar
 
 const Layout = ({ children }) => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Expose a setter for artificial latency
-  const startLoading = (duration = 2000, callback) => {
+  const startLoading = (path) => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      if (callback) callback();
-    }, duration);
+      navigate(path);
+    }, 1500);
   };
 
   return (
     <>
       <Loader loading={loading} />
+      <Navbar /> {/* ✅ Always show Navbar */}
+      {/* Pass startLoading to child pages */}
       {React.cloneElement(children, { startLoading })}
     </>
   );

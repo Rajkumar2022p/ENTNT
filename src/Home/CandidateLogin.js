@@ -1,4 +1,3 @@
-// src/components/Home/CandidateLogin.js
 import React, { useState } from 'react';
 
 const CandidateLogin = ({ onLogin }) => {
@@ -7,8 +6,7 @@ const CandidateLogin = ({ onLogin }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add real validation here, for now just call onLogin
-    onLogin(); 
+    onLogin(email, password); // pass email & password to parent
   };
 
   return (

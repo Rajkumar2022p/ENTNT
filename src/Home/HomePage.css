@@ -22,96 +22,63 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  color: #fff;
+  align-items: center;
   text-align: center;
-  gap: 2rem;
   pointer-events: none;
+  color: #fff;
+  padding: 2rem;
 }
 
 .typed-title {
-  font-size: 3rem;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 3rem;
   pointer-events: auto;
-  font-family: 'Courier New', Courier, monospace;
-  white-space: nowrap;
-  overflow: hidden;
-  border-right: 0.15em solid #00bfff;
-  animation: blink-caret 0.75s step-end infinite;
-}
-
-@keyframes blink-caret {
-  from, to { border-color: transparent; }
-  50% { border-color: #00bfff; }
 }
 
 .cards-container-vertical {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 2rem;
+  width: 100%;
+  max-width: 600px;
   pointer-events: auto;
-  margin-top: 2rem;
-  width: 80%;
 }
 
 .login-card {
-  width: 100%;
-  padding: 3rem;
-  border-radius: 25px;
-  text-align: left;
-  background: linear-gradient(135deg, #ff6ec4, #7873f5, #42d4f5);
-  background-size: 600% 600%;
+  background: linear-gradient(135deg, #ff6ec4, #7873f5);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   color: #fff;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-  pointer-events: auto;
-  animation: gradientShift 5s ease infinite;
-  position: relative;
+  transition: transform 0.3s ease-in-out;
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.login-card h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-.login-card p {
-  font-size: 1.1rem;
-  line-height: 1.5;
-  color: #f0f0f0;
-}
-
-/* Button at bottom-right */
 .card-button {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
+  margin-top: 1.5rem;
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
   border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background-color: #00bfff;
-  color: #fff;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #333;
   font-weight: bold;
-  display: flex;
+  cursor: pointer;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
   transition: all 0.3s ease;
 }
 
 .card-button .arrow {
-  transform: translateX(0);
+  margin-left: 0.5rem;
   transition: transform 0.3s ease;
 }
 
 .card-button:hover {
-  transform: scale(1.1);
+  background-color: #fff;
+  color: #000;
+  transform: scale(1.05);
 }
 
 .card-button:hover .arrow {

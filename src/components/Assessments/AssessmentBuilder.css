@@ -1,0 +1,117 @@
+.assessment-builder {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #f7f9fc;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.assessment-builder h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.builder-container {
+  display: flex;
+  gap: 2rem;
+}
+
+.questions-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 50px;
+}
+
+.question-number-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #007bff;
+  background-color: white;
+  color: #007bff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.question-number-btn:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.question-number-btn.active {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
+
+.question-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+}
+
+.question-card h4 {
+  margin-bottom: 0.8rem;
+  color: #444;
+}
+
+.options input {
+  margin-bottom: 0.5rem;
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.3rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.assessment-builder input,
+.assessment-builder select {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.assessment-builder button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  margin-top: 0.5rem;
+}
+
+.assessment-builder button:hover {
+  background-color: #0056b3;
+}
+
+.remove-btn {
+  background-color: #dc3545;
+}
+
+.remove-btn:hover {
+  background-color: #a71d2a;
+}
+
+.success-msg {
+  color: green;
+  font-weight: 500;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.error-msg {
+  color: red;
+  font-weight: 500;
+  margin-top: 1rem;
+  text-align: center;
+}

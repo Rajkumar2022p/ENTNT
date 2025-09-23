@@ -5,7 +5,9 @@ import HomePage from './Home/HomePage';
 import JobLogin from './Home/JobLogin';
 import CandidateLogin from './Home/CandidateLogin';
 import Layout from './components/common/Layout';
-
+import JobDashboard from './components/Jobs/JobDashboard';
+import LoginPage from './Home/CommonLogin';
+import AssessmentBuilder from './components/Assessments/AssessmentBuilder';
 function App() {
   return (
     <BrowserRouter>
@@ -18,14 +20,10 @@ function App() {
             </Layout>
           }
         />
-        <Route
-          path="/JobLogin"
-          element={
-            <Layout>
-              <JobLogin />
-            </Layout>
-          }
-        />
+        // App.js
+<Route path="/JobLogin" element={<LoginPage />} />
+
+        
         <Route
           path="/CandidateLogin"
           element={
@@ -34,6 +32,16 @@ function App() {
             </Layout>
           }
         />
+        <Route
+  path="/job-dashboard/:id"
+  element={
+    <Layout>
+      <JobDashboard />
+    </Layout>
+  }
+/>
+<Route path="/assignments/:jobId" element={<AssessmentBuilder />} />
+
       </Routes>
     </BrowserRouter>
   );

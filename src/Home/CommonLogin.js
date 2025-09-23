@@ -9,28 +9,21 @@ const LoginPage = () => {
 
   const onLogin = async (email, password) => {
     const user = await db.table('users').where({ email, role: 'job' }).first();
-    if (!user) {
-      alert('User not found');
-      return;
-    }
-    if (user.password !== password) {
-      alert('Incorrect password');
-      return;
-    }
-    navigate('/job-dashboard');
+    if (!user) return 'User not found. Please sign up first.';
+    if (user.password !== password) return 'Incorrect password.';
+    navigate(`/job-dashboard/${user.id}`);
+    return null;
   };
 
   const onSignup = async (email, password) => {
     const existingUser = await db.table('users').where({ email, role: 'job' }).first();
-    if (existingUser) {
-      alert('User already exists');
-      return;
-    }
-    await db.table('users').add({ email, password, role: 'job' });
-    alert('Sign up successful!');
-    navigate('/job-dashboard');
+    if (existingUser) return 'User already exists. Please sign in.';
+    const id = await db.table('users').add({ email, password, role: 'job' });
+    navigate(`/job-dashboard/${id}`);
+    return null;
   };
 
+  // ✅ Make sure both props are passed
   return <JobLogin onLogin={onLogin} onSignup={onSignup} />;
 };
 

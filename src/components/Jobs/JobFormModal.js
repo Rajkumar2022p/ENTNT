@@ -1,9 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { db } from "../../db/dexie";
+import AssessmentBuilder from "../Assessments/AssessmentBuilder";
 
-const JobFormModal = ({ onAddJob }) => {
+const JobFormModal = ({ onAddJob, jobId }) => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
+  const [hasAssessment, setHasAssessment] = useState(false);
+  const [showAssessmentBuilder, setShowAssessmentBuilder] = useState(false);
+
+  useEffect(() => {
+    const checkAssessment = async () => {
+      if (jobId) {
+        const assessment = await db.assessments.where({ jobId }).first();
+        setHasAssessment(!!assessment);
+      }
+    };
+    checkAssessment();
+  }, [jobId]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -81,6 +95,23 @@ const JobFormModal = ({ onAddJob }) => {
           </form>
         </div>
       </div>
+
+      {jobId && (
+        <div className="text-center mt-2">
+          <button
+            className="btn btn-outline-success"
+            onClick={() => setShowAssessmentBuilder(!showAssessmentBuilder)}
+          >
+            {hasAssessment ? "✏️ Edit Assignment" : "➕ Create Assignment"}
+          </button>
+        </div>
+      )}
+
+      {showAssessmentBuilder && jobId && (
+        <div style={{ marginTop: "2rem" }}>
+          <AssessmentBuilder jobId={jobId} />
+        </div>
+      )}
     </>
   );
 };

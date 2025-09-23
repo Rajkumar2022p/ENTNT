@@ -1,14 +1,15 @@
-import Dexie from 'dexie';
+import Dexie from "dexie";
 
-export interface User {
-  id?: number;
-  role: 'job' | 'candidate';
-  email: string;
-  password: string;
-}
+export const db = new Dexie("TalentFlowDB");
 
-export const db = new Dexie('TalentFlowDB');
-
+// Define tables here
 db.version(1).stores({
-  users: '++id,email,role,password',
+  jobs: "++id, title, slug, status, tags, priority",
+  assessments: "++id, jobId, questions, createdAt",
+  users: "++id, name, email, role", // <-- add this table
+});
+
+// Optional: open the database
+db.open().catch((err) => {
+  console.error("Dexie open failed: ", err.stack || err);
 });

@@ -1,52 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import CandidateCard from './CandidateCard';
-import './CandidateDashboard.css';
+// src/components/Candidate/CandidateDashboard.js
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 
-// Mock candidate data
-const initialCandidateJobs = [
-  {
-    jobId: 1,
-    title: 'Frontend Developer',
-    description: 'React & JS',
-    assignments: [
-      { id: 101, title: 'React Basics', deadline: '2025-09-25', time: '2h', prerequisites: ['React Docs.pdf'] },
-      { id: 102, title: 'JS Advanced', deadline: '2025-09-28', time: '3h', prerequisites: [] },
-    ],
-  },
-  {
-    jobId: 2,
-    title: 'Backend Developer',
-    description: 'Node.js & Express',
-    assignments: [
-      { id: 201, title: 'Express Routing', deadline: '2025-09-27', time: '2h', prerequisites: [] },
-    ],
-  },
-];
+// Empty placeholder components
+const CandidateHome = () => <div>Home</div>;
+const CandidateAssessments = () => <div>Assessments</div>;
+const CandidateStatusBoard = () => <div>Status</div>;
+const CandidateSuggestions = () => <div>Suggestions</div>;
+const ResumeUpload = () => <div>Resume Upload</div>;
 
 const CandidateDashboard = () => {
-  const [candidateJobs, setCandidateJobs] = useState([]);
+  const { id } = useParams(); // get candidateId from URL
+  const [selectedTab, setSelectedTab] = useState("home");
 
-  useEffect(() => {
-    // Fetch jobs assigned to candidate (for now we use mock data)
-    setCandidateJobs(initialCandidateJobs);
-  }, []);
+  const renderTab = () => {
+    switch (selectedTab) {
+      case "home":
+        return <CandidateHome />;
+      case "assessments":
+        return <CandidateAssessments />;
+      case "status":
+        return <CandidateStatusBoard />;
+      case "suggestions":
+        return <CandidateSuggestions />;
+      default:
+        return <p>Select a section</p>;
+    }
+  };
 
   return (
-    <div className="candidate-dashboard-container">
-      <h1>My Jobs & Assignments</h1>
-      <div className="candidate-jobs-container">
-        {candidateJobs.length > 0 ? (
-          candidateJobs.map((job) => (
-            <CandidateCard key={job.jobId} job={job} />
-          ))
-        ) : (
-          <p>No jobs assigned yet.</p>
-        )}
+    <div style={{ display: "flex", minHeight: "100vh" }}>
+      <div style={{ width: "250px", background: "#2e2e2e", color: "#fff", padding: "1rem" }}>
+        <div style={{ textAlign: "center" }}>
+          <img src="/avatar.png" alt="Avatar" style={{ width: "80px", borderRadius: "50%" }} />
+          <h3 style={{ margin: "0.5rem 0" }}>Candidate Name</h3>
+          <ResumeUpload />
+        </div>
+        <hr />
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          <li onClick={() => setSelectedTab("home")} style={{ cursor: "pointer", margin: "1rem 0" }}>🏠 Home</li>
+          <li onClick={() => setSelectedTab("assessments")} style={{ cursor: "pointer", margin: "1rem 0" }}>📝 Assessments</li>
+          <li onClick={() => setSelectedTab("status")} style={{ cursor: "pointer", margin: "1rem 0" }}>📊 Status</li>
+          <li onClick={() => setSelectedTab("suggestions")} style={{ cursor: "pointer", margin: "1rem 0" }}>💬 Suggestions</li>
+        </ul>
       </div>
 
-      <div className="new-job-posting">
-        <h2>New Job Postings</h2>
-        <p>Currently no new job postings.</p>
+      <div style={{ flex: 1, padding: "2rem" }}>
+        {renderTab()}
       </div>
     </div>
   );

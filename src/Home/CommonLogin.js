@@ -23,7 +23,6 @@ const LoginPage = () => {
     return null;
   };
 
-  // ✅ Make sure both props are passed
   return <JobLogin onLogin={onLogin} onSignup={onSignup} />;
 };
 

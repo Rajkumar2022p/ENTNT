@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import JobsBoard from "./JobsBoard";
 import JobPriorityBoard from "./JobPriorityBoard"; // classic priority
 import JobPriorityBoardKanban from "./KanbanBoard"; // Kanban version
-import CandidateScoreBoard from "./CandidateScoreBoard"; // new scoreboard component
+// Removed import CandidateScoreBoard
 import { db } from "../../db/dexie";
 
 const JobDashboard = () => {
@@ -66,7 +66,7 @@ const JobDashboard = () => {
         );
 
       case "candidates":
-        return <CandidateScoreBoard recruiterJobs={recruiterJobs} />;
+        return <div>Candidate Scores</div>; // empty placeholder
 
       default:
         return <p>Select a section</p>;

@@ -1,17 +1,28 @@
+// src/Home/CandidateLogin.js
 import React, { useState } from 'react';
 
-const CandidateLogin = ({ onLogin }) => {
+const CandidateLogin = ({ onLogin, onSignup }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
-    onLogin(email, password); // pass email & password to parent
+    if (!onLogin) return console.error('onLogin not passed!');
+    const error = await onLogin(email, password);
+    setErrorMessage(error || '');
+  };
+
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    if (!onSignup) return console.error('onSignup not passed!');
+    const error = await onSignup(email, password);
+    setErrorMessage(error || '');
   };
 
   return (
     <div style={loginPageStyle}>
-      <form style={formStyle} onSubmit={handleSubmit}>
+      <form style={formStyle}>
         <h2>Candidate Login</h2>
         <input
           type="email"
@@ -27,7 +38,12 @@ const CandidateLogin = ({ onLogin }) => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Login</button>
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+
+        <div style={buttonGroupStyle}>
+          <button type="submit" onClick={handleSignIn}>Sign In</button>
+          <button type="button" onClick={handleSignUp}>Sign Up</button>
+        </div>
       </form>
     </div>
   );
@@ -50,6 +66,12 @@ const formStyle = {
   padding: '2rem',
   borderRadius: '12px',
   width: '300px',
+};
+
+const buttonGroupStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  gap: '1rem',
 };
 
 export default CandidateLogin;

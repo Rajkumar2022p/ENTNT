@@ -1,63 +1,64 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import JobFormModal from "./JobFormModal";
+import JobPriorityBoard from "./JobPriorityBoard";
 import { useNavigate } from "react-router-dom";
-import { db } from "../../db/dexie";
-import { candidates } from "../../store/seed";
 
 const pageSize = 5;
 
-const JobsBoard = ({ recruiterId, recruiterJobs, setRecruiterJobs }) => {
-  const [filters, setFilters] = useState({ title: "", status: "", tags: [] });
-  const [page, setPage] = useState(1);
+const JobsBoard = ({ recruiterId }) => {
   const navigate = useNavigate();
 
+  // Jobs state: persist to localStorage
+  const [recruiterJobs, setRecruiterJobs] = useState(() => {
+    const saved = localStorage.getItem("recruiterJobs");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [filters, setFilters] = useState({ title: "", status: "" });
+  const [page, setPage] = useState(1);
+
+  // Save to localStorage whenever jobs change
+  useEffect(() => {
+    localStorage.setItem("recruiterJobs", JSON.stringify(recruiterJobs));
+  }, [recruiterJobs]);
+
   const applyFilters = () => {
-    let filtered = recruiterJobs.filter((j) => j.recruiterId === recruiterId);
+    let filtered = recruiterJobs;
 
-    if (filters.title) filtered = filtered.filter((j) =>
-      j.title.toLowerCase().includes(filters.title.toLowerCase())
-    );
+    if (filters.title)
+      filtered = filtered.filter((j) =>
+        j.title.toLowerCase().includes(filters.title.toLowerCase())
+      );
+    if (filters.status)
+      filtered = filtered.filter((j) => j.status === filters.status);
 
-    if (filters.status) filtered = filtered.filter((j) => j.status === filters.status);
-
-    if (filters.tags.length > 0) filtered = filtered.filter((j) =>
-      filters.tags.every((tag) => j.tags?.includes(tag))
-    );
-
-    filtered.sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
     return filtered.slice((page - 1) * pageSize, page * pageSize);
   };
 
   const jobs = applyFilters();
 
-  const addJob = async ({ title, location, description, deadline }) => {
-    const newJob = {
-      id: Date.now(),
-      title,
-      location,
-      description,
-      recruiterId,
-      status: "active",
-      priority: recruiterJobs.length,
-      deadline: deadline ? new Date(deadline).toISOString() : null,
-    };
+  const addJob = (newJobsArray) => {
+    if (!Array.isArray(newJobsArray)) newJobsArray = [newJobsArray];
 
-    setRecruiterJobs([...recruiterJobs, newJob]);
-    try {
-      await db.jobs.add(newJob);
-    } catch {
-      setRecruiterJobs(recruiterJobs);
-    }
+    const jobsWithMeta = newJobsArray.map((job) => ({
+      ...job,
+      recruiterId,
+      id: job.id || Date.now(),
+      status: "active",
+      deadline: job.deadline ? new Date(job.deadline).toISOString() : null,
+    }));
+
+    setRecruiterJobs((prev) => [...prev, ...jobsWithMeta]);
   };
 
-  const toggleArchive = async (job) => {
-    const updatedJob = { ...job, status: job.status === "active" ? "archived" : "active" };
-    setRecruiterJobs(recruiterJobs.map((j) => (j.id === job.id ? updatedJob : j)));
-    try {
-      await db.jobs.update(job.id, { status: updatedJob.status });
-    } catch {
-      setRecruiterJobs(recruiterJobs);
-    }
+  const toggleArchive = (job) => {
+    const updatedJob = {
+      ...job,
+      status: job.status === "active" ? "archived" : "active",
+    };
+    setRecruiterJobs((prev) =>
+      prev.map((j) => (j.id === job.id ? updatedJob : j))
+    );
   };
 
   const calculateRemainingDays = (deadline) => {
@@ -109,29 +110,22 @@ const JobsBoard = ({ recruiterId, recruiterJobs, setRecruiterJobs }) => {
               >
                 <h3>{job.title} | {job.status}</h3>
                 <p>{job.description}</p>
-                
-                {/* Separate Deadline Field */}
                 <div>
                   <strong>Deadline:</strong>{" "}
                   <input
                     type="date"
                     value={job.deadline ? new Date(job.deadline).toISOString().split("T")[0] : ""}
-                    onChange={async (e) => {
+                    onChange={(e) => {
                       const updatedJob = { ...job, deadline: new Date(e.target.value).toISOString() };
-                      setRecruiterJobs(recruiterJobs.map(j => j.id === job.id ? updatedJob : j));
-                      await db.jobs.update(job.id, { deadline: updatedJob.deadline });
+                      setRecruiterJobs((prev) =>
+                        prev.map((j) => (j.id === job.id ? updatedJob : j))
+                      );
                     }}
                   />{" "}
                   {remainingDays != null && remainingDays >= 0 && (
                     <span>| {remainingDays === 0 ? "Due today!" : `${remainingDays} day(s) left`}</span>
                   )}
                 </div>
-
-                <ul>
-                  {candidates.filter((c) => c.jobId === job.id).map((c) => (
-                    <li key={c.id}>{c.name}</li>
-                  ))}
-                </ul>
 
                 <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
                   <button onClick={() => navigate(`/assignments/${job.id}`)}>Create/Edit Assignment</button>
@@ -150,6 +144,9 @@ const JobsBoard = ({ recruiterId, recruiterJobs, setRecruiterJobs }) => {
         <span>Page {page}</span>
         <button onClick={() => setPage((p) => p + 1)}>Next</button>
       </div>
+
+      {/* JobPriorityBoard handles priority entirely */}
+      
     </div>
   );
 };

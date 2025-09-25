@@ -1,133 +1,154 @@
-// src/components/Jobs/JobPriorityBoard.js
+// src/components/Jobs/JobDashboard.js
 import React, { useEffect, useState } from "react";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { SortableItem } from "./Sortable"; // your existing sortable item component
+import { useParams } from "react-router-dom";
+import JobsBoard from "./JobsBoard";
+import JobPriorityBoard from "./JobPriorityBoard"; // classic priority
+import JobPriorityBoardKanban from "./KanbanBoard"; // Kanban version
+import CandidateScoreBoard from "./CandidateScoreBoard"; 
 import { db } from "../../db/dexie";
+import PostSuggestions from "./PostSuggestions"; // <-- import PostSuggestions
 
-const JobPriorityBoard = ({ recruiterJobs, setRecruiterJobs }) => {
-  const [urgentJobs, setUrgentJobs] = useState([]);
-  const [normalJobs, setNormalJobs] = useState([]);
-  const today = new Date();
+const JobDashboard = () => {
+  const { id } = useParams(); // recruiter ID
+  const [selectedTab, setSelectedTab] = useState("jobs");
+  const [recruiterJobs, setRecruiterJobs] = useState([]);
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  // Sample posts for suggestions
+  const samplePosts = [
+    {
+      id: 1,
+      title: "Top 5 React Tips",
+      description: "Learn some advanced React tips to improve performance.",
+      link: "https://reactjs.org/docs/getting-started.html",
+    },
+    {
+      id: 2,
+      title: "JavaScript ES2025 Features",
+      description: "Explore the latest features in modern JavaScript.",
+      link: "https://developer.mozilla.org/",
+    },
+    {
+      id: 3,
+      title: "UI/UX Design Inspiration",
+      description: "Check out these stunning UI/UX designs for inspiration.",
+      link: "https://dribbble.com/",
+    },
+  ];
 
-  // Split jobs into urgent and normal based on deadline
+  // Fetch recruiter jobs from Dexie
+  const fetchRecruiterJobs = async () => {
+    const jobs = await db.jobs.where({ recruiterId: Number(id) }).toArray();
+    const jobsWithDates = jobs.map((j) => ({
+      ...j,
+      deadline: j.deadline ? new Date(j.deadline) : null,
+    }));
+    setRecruiterJobs(jobsWithDates);
+  };
+
   useEffect(() => {
-    const activeJobs = recruiterJobs.filter((j) => j.status === "active");
+    fetchRecruiterJobs();
+  }, [id]);
 
-    const urgent = [];
-    const normal = [];
-
-    activeJobs.forEach((job) => {
-      if (job.deadline) {
-        const diff = (new Date(job.deadline) - today) / (1000 * 60 * 60 * 24);
-        if (diff <= 1) urgent.push(job);
-        else normal.push(job);
-      } else {
-        normal.push(job);
+  // Centralized update function for optimistic updates
+  const updateJobs = (updatedList) => {
+    setRecruiterJobs(updatedList);
+    updatedList.forEach(async (job) => {
+      try {
+        await db.jobs.update(job.id, job);
+      } catch (err) {
+        console.error("Dexie update failed for job", job.id, err);
       }
     });
+  };
 
-    urgent.sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
-    normal.sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
+  const renderContent = () => {
+    switch (selectedTab) {
+      case "jobs":
+        return (
+          <JobsBoard
+            recruiterId={Number(id)}
+            recruiterJobs={recruiterJobs}
+            setRecruiterJobs={updateJobs}
+          />
+        );
 
-    setUrgentJobs(urgent);
-    setNormalJobs(normal);
-  }, [recruiterJobs]);
+      case "priority":
+        return (
+          <JobPriorityBoard
+            recruiterJobs={recruiterJobs}
+            setRecruiterJobs={updateJobs}
+          />
+        );
 
-  const handleDragEnd = async (event, type) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
+      case "kanban":
+        return (
+          <JobPriorityBoardKanban
+            recruiterJobs={recruiterJobs}
+            setRecruiterJobs={updateJobs}
+          />
+        );
 
-    const list = type === "urgent" ? [...urgentJobs] : [...normalJobs];
-    const oldIndex = list.findIndex((job) => job.id === active.id);
-    const newIndex = list.findIndex((job) => job.id === over.id);
+      case "candidates":
+        return (
+          <CandidateScoreBoard
+            recruiterId={Number(id)}
+            recruiterJobs={recruiterJobs}
+          />
+        );
 
-    const newList = arrayMove(list, oldIndex, newIndex);
-
-    // Update state
-    if (type === "urgent") setUrgentJobs(newList);
-    else setNormalJobs(newList);
-
-    // Update priorities in recruiterJobs and Dexie
-    const updatedRecruiterJobs = recruiterJobs.map((job) => {
-      const idx = newList.findIndex((j) => j.id === job.id);
-      return idx !== -1 ? { ...job, priority: idx } : job;
-    });
-    setRecruiterJobs(updatedRecruiterJobs);
-
-    try {
-      await Promise.all(newList.map((job, idx) => db.jobs.update(job.id, { priority: idx })));
-    } catch {
-      // rollback on error
-      if (type === "urgent") setUrgentJobs(list);
-      else setNormalJobs(list);
-      setRecruiterJobs(recruiterJobs);
+      default:
+        return <p>Select a section</p>;
     }
   };
 
-  const calculateRemainingDays = (deadline) => {
-    if (!deadline) return null;
-    const diff = (new Date(deadline) - today) / (1000 * 60 * 60 * 24);
-    return Math.ceil(diff);
-  };
-
-  const renderColumn = (jobsList, type, title) => (
-    <div style={{ minWidth: "300px", flex: "0 0 auto" }}>
-      <h3>{title}</h3>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={(e) => handleDragEnd(e, type)}
-      >
-        <SortableContext items={jobsList.map((j) => j.id)} strategy={verticalListSortingStrategy}>
-          {jobsList.map((job, index) => {
-            const remainingDays = calculateRemainingDays(job.deadline);
-            return (
-              <SortableItem key={job.id} id={job.id}>
-                <div
-                  style={{
-                    padding: "1rem",
-                    margin: "0.5rem 0",
-                    border: "1px solid #ccc",
-                    borderRadius: "6px",
-                    background: "#fefefe",
-                  }}
-                >
-                  <h4>{job.title}</h4>
-                  <p>
-                    Deadline: {job.deadline ? new Date(job.deadline).toLocaleDateString() : "N/A"}{" "}
-                    {remainingDays != null && remainingDays >= 0 && (
-                      <span>| {remainingDays === 0 ? "Due today!" : `${remainingDays} day(s) left`}</span>
-                    )}
-                  </p>
-                  <p>Priority: {index + 1}</p>
-                </div>
-              </SortableItem>
-            );
-          })}
-        </SortableContext>
-      </DndContext>
-    </div>
-  );
-
   return (
-    <div style={{ display: "flex", gap: "2rem", padding: "1rem", overflowX: "auto" }}>
-      {renderColumn(urgentJobs, "urgent", "🔥 Urgent Jobs")}
-      {renderColumn(normalJobs, "normal", "🧾 Other Jobs")}
+    <div style={{ display: "flex", minHeight: "100vh" }}>
+      {/* Sidebar */}
+      <div
+        style={{
+          width: "220px",
+          background: "#1e1e1e",
+          color: "#fff",
+          padding: "1rem",
+        }}
+      >
+        <h3>Dashboard</h3>
+        <ul
+          style={{
+            listStyle: "none",
+            padding: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+        >
+          <li style={{ cursor: "pointer" }} onClick={() => setSelectedTab("jobs")}>
+            📋 Your Jobs
+          </li>
+          <li style={{ cursor: "pointer" }} onClick={() => setSelectedTab("priority")}>
+            🔀 Job Priority
+          </li>
+          <li style={{ cursor: "pointer" }} onClick={() => setSelectedTab("kanban")}>
+            🗂 Kanban Board
+          </li>
+          <li style={{ cursor: "pointer" }} onClick={() => setSelectedTab("candidates")}>
+            🎯 Candidate ScoreBoard
+          </li>
+        </ul>
+
+        {/* Post Suggestions */}
+        <div style={{ marginTop: "2rem" }}>
+          <PostSuggestions posts={samplePosts} />
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div style={{ flex: 1, padding: "2rem" }}>
+        <h2>Recruiter Dashboard (ID: {id})</h2>
+        {renderContent()}
+      </div>
     </div>
   );
 };
 
-export default JobPriorityBoard;
+export default JobDashboard;

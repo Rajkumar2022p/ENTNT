@@ -2,42 +2,71 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../db/dexie";
 
-const CandidateHome = ({ allJobs: initialJobs, candidateId }) => {
-  const [allJobs, setAllJobs] = useState(initialJobs);
+const CandidateHome = ({ candidateId }) => {
+  const [allJobs, setAllJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Optimistic apply function
+  // Fetch all active jobs from Dexie
+  useEffect(() => {
+    const fetchJobs = async () => {
+      const jobs = await db.jobs.where({ status: "active" }).toArray();
+      const jobsWithAppliedFlag = jobs.map((job) => ({
+        ...job,
+        applied: job.appliedCandidates?.includes(candidateId) || false,
+      }));
+      setAllJobs(jobsWithAppliedFlag);
+      setLoading(false);
+    };
+    fetchJobs();
+  }, [candidateId]);
+
+  // Handle Apply button click
   const handleApply = async (job) => {
+    if (job.applied) return; // already applied, ignore
+
     try {
-      // Update Dexie: add candidateId to appliedCandidates
-      const updatedApplied = job.appliedCandidates ? [...job.appliedCandidates, candidateId] : [candidateId];
-      await db.table("jobs").update(job.id, { appliedCandidates: updatedApplied });
+      const updatedApplied = job.appliedCandidates
+        ? [...job.appliedCandidates, candidateId]
+        : [candidateId];
+
+      // Update Dexie
+      await db.jobs.update(job.id, { appliedCandidates: updatedApplied });
 
       // Optimistic state update
       setAllJobs((prev) =>
-        prev.map((j) => (j.id === job.id ? { ...j, applied: true, appliedCandidates: updatedApplied } : j))
+        prev.map((j) =>
+          j.id === job.id
+            ? { ...j, applied: true, appliedCandidates: updatedApplied }
+            : j
+        )
       );
     } catch (err) {
       console.error("Failed to apply:", err);
     }
   };
 
-  // Check if candidate has assessment for the job
-  const hasAssessment = async (jobId) => {
-    const assessment = await db.table("assessments").where({ jobId, candidateId }).first();
-    return !!assessment;
-  };
-
-  const appliedJobs = allJobs.filter((job) => job.applied);
+  // Separate available and applied jobs
   const availableJobs = allJobs.filter((job) => !job.applied);
+  const appliedJobs = allJobs.filter((job) => job.applied);
+
+  if (loading) return <p>Loading jobs...</p>;
 
   return (
     <div>
       <h2>Jobs You Can Apply</h2>
+      {availableJobs.length === 0 && <p>No available jobs at the moment.</p>}
       {availableJobs.map((job) => (
-        <div key={job.id} style={{ border: "1px solid #ccc", padding: "1rem", margin: "1rem 0" }}>
+        <div
+          key={job.id}
+          style={{
+            border: "1px solid #ccc",
+            padding: "1rem",
+            margin: "1rem 0",
+            borderRadius: "6px",
+          }}
+        >
           <h3>{job.title}</h3>
           <p>{job.description}</p>
-          <p>Status: Not Applied</p>
           <button
             onClick={() => handleApply(job)}
             style={{ padding: "0.5rem 1rem", cursor: "pointer" }}
@@ -48,11 +77,19 @@ const CandidateHome = ({ allJobs: initialJobs, candidateId }) => {
       ))}
 
       <h2>Jobs You've Applied</h2>
+      {appliedJobs.length === 0 && <p>You haven't applied to any jobs yet.</p>}
       {appliedJobs.map((job) => (
-        <div key={job.id} style={{ border: "1px solid #00f", padding: "1rem", margin: "1rem 0" }}>
+        <div
+          key={job.id}
+          style={{
+            border: "1px solid #00f",
+            padding: "1rem",
+            margin: "1rem 0",
+            borderRadius: "6px",
+          }}
+        >
           <h3>{job.title}</h3>
           <p>{job.description}</p>
-          <p>Status: Applied</p>
           <AssessmentButton job={job} candidateId={candidateId} />
         </div>
       ))}
@@ -60,13 +97,15 @@ const CandidateHome = ({ allJobs: initialJobs, candidateId }) => {
   );
 };
 
-// Button to start assessment if exists
+// Assessment Button
 const AssessmentButton = ({ job, candidateId }) => {
   const [exists, setExists] = useState(false);
 
   useEffect(() => {
     const checkAssessment = async () => {
-      const assessment = await db.table("assessments").where({ jobId: job.id, candidateId }).first();
+      const assessment = await db.assessments
+        .where({ jobId: job.id, candidateId })
+        .first();
       setExists(!!assessment);
     };
     checkAssessment();
@@ -76,10 +115,7 @@ const AssessmentButton = ({ job, candidateId }) => {
 
   return (
     <button
-      onClick={() => {
-        // Navigate to assessment page
-        window.location.href = `/assignments/${job.id}`;
-      }}
+      onClick={() => (window.location.href = `/assignments/${job.id}`)}
       style={{ padding: "0.5rem 1rem", cursor: "pointer" }}
     >
       Start Assessment

@@ -1,42 +1,47 @@
+// src/components/Jobs/JobsBoard.js
 import React, { useState, useEffect } from "react";
 import JobFormModal from "./JobFormModal";
-import JobPriorityBoard from "./JobPriorityBoard";
 import { useNavigate } from "react-router-dom";
 
 const pageSize = 5;
 
 const JobsBoard = ({ recruiterId }) => {
   const navigate = useNavigate();
+  const storageKey = `recruiterJobs-${recruiterId}`; // unique per recruiter
 
-  // Jobs state: persist to localStorage
+  // Jobs state: load from localStorage per recruiter
   const [recruiterJobs, setRecruiterJobs] = useState(() => {
-    const saved = localStorage.getItem("recruiterJobs");
+    const saved = localStorage.getItem(storageKey);
     return saved ? JSON.parse(saved) : [];
   });
 
   const [filters, setFilters] = useState({ title: "", status: "" });
   const [page, setPage] = useState(1);
 
-  // Save to localStorage whenever jobs change
+  // Persist jobs to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem("recruiterJobs", JSON.stringify(recruiterJobs));
-  }, [recruiterJobs]);
+    localStorage.setItem(storageKey, JSON.stringify(recruiterJobs));
+  }, [recruiterJobs, storageKey]);
 
+  // Filtered and paginated jobs
   const applyFilters = () => {
     let filtered = recruiterJobs;
 
-    if (filters.title)
+    if (filters.title) {
       filtered = filtered.filter((j) =>
         j.title.toLowerCase().includes(filters.title.toLowerCase())
       );
-    if (filters.status)
+    }
+    if (filters.status) {
       filtered = filtered.filter((j) => j.status === filters.status);
+    }
 
     return filtered.slice((page - 1) * pageSize, page * pageSize);
   };
 
   const jobs = applyFilters();
 
+  // Add new jobs
   const addJob = (newJobsArray) => {
     if (!Array.isArray(newJobsArray)) newJobsArray = [newJobsArray];
 
@@ -51,6 +56,7 @@ const JobsBoard = ({ recruiterId }) => {
     setRecruiterJobs((prev) => [...prev, ...jobsWithMeta]);
   };
 
+  // Archive / Unarchive a job
   const toggleArchive = (job) => {
     const updatedJob = {
       ...job,
@@ -61,6 +67,7 @@ const JobsBoard = ({ recruiterId }) => {
     );
   };
 
+  // Calculate remaining days for deadline
   const calculateRemainingDays = (deadline) => {
     if (!deadline) return null;
     const today = new Date();
@@ -70,14 +77,23 @@ const JobsBoard = ({ recruiterId }) => {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      {/* Header with filters and Add Job */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <h2>Your Jobs</h2>
         <div style={{ display: "flex", gap: "1rem" }}>
           <input
             type="text"
             placeholder="Search title"
             value={filters.title}
-            onChange={(e) => setFilters({ ...filters, title: e.target.value })}
+            onChange={(e) =>
+              setFilters({ ...filters, title: e.target.value })
+            }
           />
           <select
             value={filters.status}
@@ -91,6 +107,7 @@ const JobsBoard = ({ recruiterId }) => {
         </div>
       </div>
 
+      {/* Job List */}
       {jobs.length === 0 ? (
         <p>No jobs to show.</p>
       ) : (
@@ -108,27 +125,52 @@ const JobsBoard = ({ recruiterId }) => {
                   background: "#fefefe",
                 }}
               >
-                <h3>{job.title} | {job.status}</h3>
+                <h3>
+                  {job.title} | {job.status}
+                </h3>
                 <p>{job.description}</p>
+
                 <div>
                   <strong>Deadline:</strong>{" "}
                   <input
                     type="date"
-                    value={job.deadline ? new Date(job.deadline).toISOString().split("T")[0] : ""}
+                    value={
+                      job.deadline
+                        ? new Date(job.deadline).toISOString().split("T")[0]
+                        : ""
+                    }
                     onChange={(e) => {
-                      const updatedJob = { ...job, deadline: new Date(e.target.value).toISOString() };
+                      const updatedJob = {
+                        ...job,
+                        deadline: new Date(e.target.value).toISOString(),
+                      };
                       setRecruiterJobs((prev) =>
                         prev.map((j) => (j.id === job.id ? updatedJob : j))
                       );
                     }}
                   />{" "}
                   {remainingDays != null && remainingDays >= 0 && (
-                    <span>| {remainingDays === 0 ? "Due today!" : `${remainingDays} day(s) left`}</span>
+                    <span>
+                      |{" "}
+                      {remainingDays === 0
+                        ? "Due today!"
+                        : `${remainingDays} day(s) left`}
+                    </span>
                   )}
                 </div>
 
-                <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
-                  <button onClick={() => navigate(`/assignments/${job.id}`)}>Create/Edit Assignment</button>
+                <div
+                  style={{
+                    marginTop: "1rem",
+                    display: "flex",
+                    gap: "1rem",
+                  }}
+                >
+                  <button
+                    onClick={() => navigate(`/assignments/${job.id}`)}
+                  >
+                    Create/Edit Assignment
+                  </button>
                   <button onClick={() => toggleArchive(job)}>
                     {job.status === "active" ? "Archive" : "Unarchive"}
                   </button>
@@ -139,14 +181,12 @@ const JobsBoard = ({ recruiterId }) => {
         </div>
       )}
 
+      {/* Pagination */}
       <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
         <button onClick={() => setPage((p) => Math.max(1, p - 1))}>Prev</button>
         <span>Page {page}</span>
         <button onClick={() => setPage((p) => p + 1)}>Next</button>
       </div>
-
-      {/* JobPriorityBoard handles priority entirely */}
-      
     </div>
   );
 };

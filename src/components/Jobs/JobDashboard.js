@@ -4,13 +4,36 @@ import { useParams } from "react-router-dom";
 import JobsBoard from "./JobsBoard";
 import JobPriorityBoard from "./JobPriorityBoard"; // classic priority
 import JobPriorityBoardKanban from "./KanbanBoard"; // Kanban version
-// Removed import CandidateScoreBoard
+import CandidateScoreBoard from "./CandidateScoreBoard"; 
 import { db } from "../../db/dexie";
+import PostSuggestions from "./PostSuggestions"; // <-- import PostSuggestions
 
 const JobDashboard = () => {
   const { id } = useParams(); // recruiter ID
   const [selectedTab, setSelectedTab] = useState("jobs");
   const [recruiterJobs, setRecruiterJobs] = useState([]);
+
+  // Sample posts for suggestions
+  const samplePosts = [
+    {
+      id: 1,
+      title: "Top 5 React Tips",
+      description: "Learn some advanced React tips to improve performance.",
+      link: "https://reactjs.org/docs/getting-started.html",
+    },
+    {
+      id: 2,
+      title: "JavaScript ES2025 Features",
+      description: "Explore the latest features in modern JavaScript.",
+      link: "https://developer.mozilla.org/",
+    },
+    {
+      id: 3,
+      title: "UI/UX Design Inspiration",
+      description: "Check out these stunning UI/UX designs for inspiration.",
+      link: "https://dribbble.com/",
+    },
+  ];
 
   // Fetch recruiter jobs from Dexie
   const fetchRecruiterJobs = async () => {
@@ -66,7 +89,12 @@ const JobDashboard = () => {
         );
 
       case "candidates":
-        return <div>Candidate Scores</div>; // empty placeholder
+        return (
+          <CandidateScoreBoard
+            recruiterId={Number(id)}
+            recruiterJobs={recruiterJobs}
+          />
+        );
 
       default:
         return <p>Select a section</p>;
@@ -107,6 +135,11 @@ const JobDashboard = () => {
             🎯 Candidate ScoreBoard
           </li>
         </ul>
+
+        {/* Post Suggestions */}
+        <div style={{ marginTop: "2rem" }}>
+          <PostSuggestions posts={samplePosts} />
+        </div>
       </div>
 
       {/* Main Content */}

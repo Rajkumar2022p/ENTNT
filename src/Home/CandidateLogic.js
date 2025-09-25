@@ -20,6 +20,7 @@ const CandidateLoginPage = () => {
     const existingUser = await db.table('users').where({ email, role: 'candidate' }).first();
     if (existingUser) return 'Candidate already exists. Please sign in.';
     const id = await db.table('users').add({ email, password, role: 'candidate' });
+    console.log("New candidate ID:", id);
     navigate(`/candidate-dashboard/${id}`);
     return null;
   };

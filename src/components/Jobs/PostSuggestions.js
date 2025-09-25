@@ -23,8 +23,8 @@ const PostSuggestions = ({ posts = [] }) => {
           <div
             key={post.id}
             className="ps-card"
-            onClick={() => navigate(`/post/${post.id}`)}
             style={{ cursor: "pointer" }}
+            onClick={() => navigate(`/post/${post.id}`)}
           >
             <h4 className="ps-title">{post.title}</h4>
             <p className="ps-desc">{post.description}</p>

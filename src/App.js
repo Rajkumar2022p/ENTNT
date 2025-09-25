@@ -1,7 +1,7 @@
 // src/App.js
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
+  import PostDetails from './components/Jobs/PostDetails';
 import HomePage from './Home/HomePage';
 import LoginPage from './Home/CommonLogin';
 import CandidateLogic from './Home/CandidateLogic';
@@ -78,6 +78,18 @@ function App() {
             </Layout>
           }
         />
+      
+
+
+<Route
+  path="/post/:postId"
+  element={
+    <Layout>
+      <PostDetails />
+    </Layout>
+  }
+/>
+
         <Route
           path="/dummy"
           element={

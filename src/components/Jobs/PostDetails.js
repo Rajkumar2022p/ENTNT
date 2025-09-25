@@ -12,25 +12,25 @@ const PostDetails = () => {
   const { postId } = useParams();
 
   return (
-    <div style={styles.container}>
+    <div style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
       <h2>Post Details - ID: {postId}</h2>
       <p>This is a dummy post detail page showing related candidate data.</p>
 
       <h3 style={{ marginTop: "2rem" }}>Dummy Candidates</h3>
-      <table style={styles.table}>
+      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
         <thead>
           <tr>
-            <th style={styles.th}>Name</th>
-            <th style={styles.th}>Email</th>
-            <th style={styles.th}>Score</th>
+            <th style={thStyle}>Name</th>
+            <th style={thStyle}>Email</th>
+            <th style={thStyle}>Score</th>
           </tr>
         </thead>
         <tbody>
           {dummyCandidates.map((c) => (
             <tr key={c.id}>
-              <td style={styles.td}>{c.name}</td>
-              <td style={styles.td}>{c.email}</td>
-              <td style={styles.td}>{c.score}</td>
+              <td style={tdStyle}>{c.name}</td>
+              <td style={tdStyle}>{c.email}</td>
+              <td style={tdStyle}>{c.score}</td>
             </tr>
           ))}
         </tbody>
@@ -39,25 +39,7 @@ const PostDetails = () => {
   );
 };
 
-const styles = {
-  container: {
-    padding: "2rem",
-    fontFamily: "Arial, sans-serif",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    marginTop: "1rem",
-  },
-  th: {
-    textAlign: "left",
-    borderBottom: "2px solid #ccc",
-    padding: "0.5rem",
-  },
-  td: {
-    padding: "0.5rem",
-    borderBottom: "1px solid #eee",
-  },
-};
+const thStyle = { textAlign: "left", borderBottom: "2px solid #ccc", padding: "0.5rem" };
+const tdStyle = { padding: "0.5rem", borderBottom: "1px solid #eee" };
 
 export default PostDetails;
